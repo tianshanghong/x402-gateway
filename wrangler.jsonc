@@ -9,7 +9,13 @@
 	"compatibility_date": "2025-09-18",
 	"vars": {
 		"UPSTREAM_BASE": "https://httpbin.org",
-		"PROTECT_PREFIX": "/api/"
+		"PROTECT_PREFIX": "/api/",
+		"PRICE_USDC_MICRO": "10000",
+		"CURRENCY": "USDC",
+		"NETWORK": "base-mainnet",
+		"ASSET": "USDC",
+		"RECEIVER": "0x0000000000000000000000000000000000000000",
+		"TIMEOUT_SECS": "60"
 	},
 	"observability": {
 		"enabled": true

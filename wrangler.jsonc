@@ -7,6 +7,10 @@
 	"name": "x402-gateway",
 	"main": "src/index.ts",
 	"compatibility_date": "2025-09-18",
+	"vars": {
+		"UPSTREAM_BASE": "https://httpbin.org",
+		"PROTECT_PREFIX": "/api/"
+	},
 	"observability": {
 		"enabled": true
 	}
@@ -25,7 +29,6 @@
 	 * Environment Variables
 	 * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
 	 */
-	// "vars": { "MY_VARIABLE": "production_value" }
 	/**
 	 * Note: Use secrets to store sensitive data.
 	 * https://developers.cloudflare.com/workers/configuration/secrets/

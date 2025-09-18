@@ -1,18 +1,40 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Bind resources to your worker in `wrangler.jsonc`. After adding bindings, a type definition for the
- * `Env` object can be regenerated with `npm run cf-typegen`.
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+interface Env {
+	UPSTREAM_BASE: string;
+	PROTECT_PREFIX: string;
+}
+
+const DEFAULT_PREFIX = "/api/";
+
+function normalizePrefix(prefix?: string) {
+	const safe = prefix?.trim();
+	return safe && safe.startsWith("/") ? safe : DEFAULT_PREFIX;
+}
+
+function buildUpstreamRequest(request: Request, upstreamBase: string) {
+	const incoming = new URL(request.url);
+	const target = new URL(incoming.pathname + incoming.search, upstreamBase);
+	return new Request(target, request);
+}
 
 export default {
-	async fetch(request, env, ctx): Promise<Response> {
-		return new Response('Hello World!');
+	async fetch(request, env): Promise<Response> {
+		const upstreamBase = env.UPSTREAM_BASE;
+
+		if (!upstreamBase) {
+			return new Response("UPSTREAM_BASE is not configured", { status: 500 });
+		}
+
+		const prefix = normalizePrefix(env.PROTECT_PREFIX);
+		const url = new URL(request.url);
+		const protectedPath = url.pathname.startsWith(prefix);
+
+		// WW-74: Always proxy to upstream. Payment checks will be added in follow-up tasks.
+		const upstreamRequest = buildUpstreamRequest(request, upstreamBase);
+
+		if (!protectedPath) {
+			return fetch(upstreamRequest);
+		}
+
+		return fetch(upstreamRequest);
 	},
 } satisfies ExportedHandler<Env>;
